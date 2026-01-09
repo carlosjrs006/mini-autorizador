@@ -1,20 +1,6 @@
 version: "3.7"
 
 services:
-
-  mongo:
-    image: mongo:4.2
-    hostname: mongo
-    container_name: mongo
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_DATABASE: miniautorizador
-      MONGO_INITDB_ROOT_USERNAME: user
-      MONGO_INITDB_ROOT_PASSWORD: password
-    volumes:
-      - ./scripts/init.js:/docker-entrypoint-initdb.d/init.js:ro
-
   mysql:
     image: mysql:5.7
     hostname: mysql
@@ -24,5 +10,24 @@ services:
       - "3306:3306"
     environment:
       MYSQL_DATABASE: miniautorizador
-      MYSQL_ROOT_PASSWORD:
+      MYSQL_ROOT_PASSWORD: ""
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: mini-autorizador-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/miniautorizador?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
