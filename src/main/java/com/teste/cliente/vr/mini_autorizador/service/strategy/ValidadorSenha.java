@@ -6,13 +6,15 @@ import com.teste.cliente.vr.mini_autorizador.exception.BusinessException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @Order(1)
 public class ValidadorSenha implements ValidadorTransacao {
     @Override
     public void validar(Cartao cartao, TransacaoDTO transacao) {
-        if (!cartao.getSenha().equals(transacao.getSenhaCartao())) {
-            throw new BusinessException("SENHA_INVALIDA");
-        }
+        Optional.of(cartao.getSenha())
+                .filter(senha -> senha.equals(transacao.getSenhaCartao()))
+                .orElseThrow(() -> new BusinessException("SENHA_INVALIDA"));
     }
 }

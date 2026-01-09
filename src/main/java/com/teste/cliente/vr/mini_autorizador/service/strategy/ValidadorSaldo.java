@@ -6,13 +6,15 @@ import com.teste.cliente.vr.mini_autorizador.exception.BusinessException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
-@Order(2) // Executa após a validação de senha
+@Order(2)
 public class ValidadorSaldo implements ValidadorTransacao {
     @Override
     public void validar(Cartao cartao, TransacaoDTO transacao) {
-        if (cartao.getSaldo().compareTo(transacao.getValor()) < 0) {
-            throw new BusinessException("SALDO_INSUFICIENTE");
-        }
+        Optional.of(cartao.getSaldo())
+                .filter(saldo -> saldo.compareTo(transacao.getValor()) >= 0)
+                .orElseThrow(() -> new BusinessException("SALDO_INSUFICIENTE"));
     }
 }
