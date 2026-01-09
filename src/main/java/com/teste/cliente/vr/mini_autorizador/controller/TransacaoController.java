@@ -21,6 +21,6 @@ public class TransacaoController {
     @PostMapping
     public ResponseEntity<String> realizarTransacao(@Valid @RequestBody TransacaoDTO transacaoDTO) {
         autorizadorService.processarTransacao(transacaoDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Transação realizada!!!");
+        return ResponseEntity.status(HttpStatus.CREATED).body("OK");
     }
 }
