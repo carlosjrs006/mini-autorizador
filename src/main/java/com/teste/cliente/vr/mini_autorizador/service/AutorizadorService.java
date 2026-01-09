@@ -57,6 +57,22 @@ public class AutorizadorService {
         log.info("Transação aprovada para o cartão: {}. Novo saldo: {}", dto.getNumeroCartao(), cartao.getSaldo());
     }
 
+    @Transactional
+    public void adicionarSaldo(String numeroCartao, BigDecimal valor) {
+        log.info("Tentativa de adicionar saldo ao cartão: {}. Valor: {}", numeroCartao, valor);
+
+        Cartao cartao = repository.findByNumeroCartaoComLock(numeroCartao)
+                .orElseThrow(() -> {
+                    log.error("Falha ao adicionar saldo: Cartão {} inexistente", numeroCartao);
+                    return new BusinessException("CARTAO_INEXISTENTE");
+                });
+
+        cartao.setSaldo(cartao.getSaldo().add(valor));
+        repository.save(cartao);
+
+        log.info("Saldo adicionado com sucesso. Novo saldo do cartão {}: {}", numeroCartao, cartao.getSaldo());
+    }
+
     public Optional<BigDecimal> obterSaldo(String numeroCartao) {
         log.debug("Consulta de saldo para o cartão: {}", numeroCartao);
         return repository.findById(numeroCartao).map(Cartao::getSaldo);

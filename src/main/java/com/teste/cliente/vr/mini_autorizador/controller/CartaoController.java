@@ -1,6 +1,7 @@
 package com.teste.cliente.vr.mini_autorizador.controller;
 
 import com.teste.cliente.vr.mini_autorizador.dto.CartaoDTO;
+import com.teste.cliente.vr.mini_autorizador.dto.SaldoRequest;
 import com.teste.cliente.vr.mini_autorizador.exception.CartaoJaExisteException;
 import com.teste.cliente.vr.mini_autorizador.service.AutorizadorService;
 import jakarta.validation.Valid;
@@ -33,5 +34,12 @@ public class CartaoController {
         return autorizadorService.obterSaldo(numeroCartao)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{numeroCartao}/saldo")
+    public ResponseEntity<Void> adicionarSaldo(@PathVariable String numeroCartao,
+                                               @RequestBody @Valid SaldoRequest saldoRequest) {
+        autorizadorService.adicionarSaldo(numeroCartao, saldoRequest.getValor());
+        return ResponseEntity.ok().build();
     }
 }
